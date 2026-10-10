@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRP Supply & Service - ระบบออกบิล & ใบเสนอราคา (V8 รองรับมือถือ & แท็บเล็ต)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #2563eb;
+    --primary-subtle: #eff6ff;
+    --success: #059669;
+    --success-bg: #ecfdf5;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --slate: #475569;
+    --border: #cbd5e1;
+    --bg-page: #f8fafc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
+  body { background-color: var(--bg-page); color: #0f172a; line-height: 1.5; }
+  
+  /* Layout */
+  .app-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+  .app-header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 20px; }
+  .brand-title { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+  .header-actions { display: flex; gap: 10px; }
+  
+  /* Tabs */
+  .nav-tabs { display: flex; gap: 8px; background: #e2e8f0; padding: 6px; border-radius: 10px; margin-bottom: 25px; }
+  .nav-btn { flex: 1; padding: 10px 16px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; color: #475569; transition: all 0.2s; text-align: center; }
+  .nav-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+  
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  
+  /* Cards */
+  .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+  .card-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+  
+  /* Forms & Buttons */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group label { font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.15s; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #172554; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #047857; }
+  .btn-warning { background: var(--warning); color: #fff; }
+  .btn-warning:hover { background: #b45309; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-light { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+  .btn-light:hover { background: #e2e8f0; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 6px; }
+
+  /* Table */
+  .table-responsive { overflow-x: auto; }
+  table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+  table.data-table th, table.data-table td { padding: 12px 14px; text-align: left; font-size: 13.5px; border-bottom: 1px solid #f1f5f9; }
+  table.data-table th { background: #f8fafc; font-weight: 700; color: #475569; }
+  table.data-table tr:last-child td { border-bottom: none; }
+  table.data-table tr:hover td { background: #f8fafc; }
+  
+  /* Status Badges */
+  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .status-Draft { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .status-Pending { background: var(--warning-bg); color: var(--warning); border: 1px solid #fde68a; }
+  .status-Completed { background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; }
+  
+  /* Stat Cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: #fff; padding: 20px; border-radius: 12px; border-left: 5px solid; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+  .stat-title { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+  .stat-val { font-size: 26px; font-weight: 700; }
+
+  /* Invoice Paper (A4 Standard) */
+  #invoice-workspace { display: grid; grid-template-columns: 460px 1fr; gap: 24px; }
+
+  /* Responsive Mobile & Tablet Enhancements */
+  @media (max-width: 768px) {
+    body { padding: 8px; }
+    .app-container { padding: 0; }
+    .app-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px; }
+    .header-actions { width: 100%; display: flex; gap: 6px; }
+    .header-actions .btn { flex: 1; font-size: 11.5px; padding: 8px 6px; text-align: center; }
+
+    /* Tabs horizontal scroll on phones */
+    .nav-tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-btn { flex: 0 0 auto; padding: 8px 14px; font-size: 13.5px; }
+
+    /* Forms */
+    .card { padding: 14px; margin-bottom: 14px; }
+    .form-grid { grid-template-columns: 1fr !important; gap: 10px; }
+    .form-group input, .form-group select, .form-group textarea {
+      font-size: 16px !important; /* Prevents auto-zoom on iOS */
+      padding: 10px;
+    }
+    .btn { min-height: 42px; }
+
+    /* Invoice workspace on mobile */
+    #invoice-workspace { display: flex; flex-direction: column; gap: 16px; }
+    .invoice-paper-wrapper {
+      padding: 10px 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      justify-content: flex-start;
+      border-radius: 8px;
+    }
+    .invoice-a4 {
+      /* Ensure A4 preview doesn't distort, scrolls smoothly horizontally on mobile */
+      min-width: 780px;
+      padding: 10mm;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1199px) {
+    /* Tablet Portrait & Landscape */
+    body { padding: 12px; }
+    .app-container { padding: 0; }
+    #invoice-workspace { grid-template-columns: 1fr; }
+    .invoice-paper-wrapper { overflow-x: auto; padding: 15px; }
+    .invoice-a4 { min-width: 780px; }
+  }
+
+  
+  .invoice-paper-wrapper { display: flex; justify-content: center; background: #64748b; padding: 25px; border-radius: 12px; overflow-x: auto; }
+  .invoice-a4 {
+    width: 210mm; min-height: 297mm; background: #fff; padding: 10mm 12mm;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25); color: #000; font-size: 13px; line-height: 1.45;
+    position: relative; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  
+  .inv-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 12px; }
+  .inv-branding { display: flex; align-items: center; gap: 15px; max-width: 65%; }
+  .inv-logo { max-height: 75px; max-width: 150px; object-fit: contain; }
+  .inv-comp-details h2 { font-size: 16px; font-weight: 700; color: #000; margin-bottom: 2px; }
+  .inv-comp-details p { font-size: 11.5px; color: #333; line-height: 1.35; }
+  .inv-doc-details { text-align: right; }
+  .inv-doc-details h1 { font-size: 22px; font-weight: 800; color: #1e3a8a; letter-spacing: 0.5px; }
+  .inv-meta-grid { font-size: 12px; margin-top: 6px; }
+  .inv-meta-grid div { margin-bottom: 2px; }
+  
+  .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .party-box { border: 1px solid #94a3b8; border-radius: 4px; padding: 8px 12px; min-height: 75px; }
+  .party-title { font-weight: 700; font-size: 12.5px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-bottom: 5px; }
+  
+  .inv-items-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .inv-items-table th { border: 1px solid #000; background: #f8fafc; font-size: 11.5px; font-weight: 700; padding: 6px 8px; text-align: center; }
+  .inv-items-table td { border: 1px solid #000; padding: 6px 8px; font-size: 12px; vertical-align: top; }
+  .inv-sub-point { font-size: 11px; color: #334155; margin-left: 12px; line-height: 1.35; }
+  .inv-worker-chip { display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; padding: 1px 6px; font-size: 10.5px; margin: 2px 2px 0 0; }
+  
+  .inv-totals-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+  .inv-totals-table td { border: 1px solid #000; padding: 6px 8px; font-weight: 700; }
+  
+  .inv-notes-box { border: 1px solid #000; border-radius: 4px; padding: 8px 10px; font-size: 11.5px; margin-bottom: 15px; }
+  .inv-notes-box strong { display: block; margin-bottom: 3px; }
+  
+  .inv-signatures { display: flex; justify-content: space-between; margin-top: 25px; padding: 0 20px; }
+  .sig-col { text-align: center; font-size: 12px; width: 42%; }
+  .sig-space { height: 45px; }
+  .sig-line { border-bottom: 1px dotted #000; margin-bottom: 6px; }
+
+  /* Print Media Query */
+  @media print {
+    body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+    .no-print, .app-header, .nav-tabs, #invoice-sidebar { display: none !important; }
+    .app-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    #invoice-workspace { display: block !important; }
+    .invoice-paper-wrapper { background: transparent !important; padding: 0 !important; margin: 0 !important; }
+    .invoice-a4 {
+      box-shadow: none !important; border: none !important; width: 100% !important;
+      min-height: auto !important; padding: 8mm 10mm !important; margin: 0 !important;
+      page-break-after: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Top App Header -->
+  <header class="app-header no-print">
+    <div class="brand-title">
+      <span>🏢</span>
+      <div>
+        <div>ระบบวางบิล & บัญชีเบื้องต้น (TRP Workspace)</div>
+        <div style="font-size:12px; font-weight:normal; color:#64748b;">ออกใบเบิกเงิน / ใบเสนอราคา / จัดการลูกจ้าง & นายจ้าง</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-light" onclick="exportDataBackup()">📥 สำรองข้อมูล (Backup JSON)</button>
+      <button class="btn btn-light" onclick="document.getElementById('import-file').click()">📤 กู้คืนข้อมูล (Restore)</button>
+      <input type="file" id="import-file" style="display:none;" onchange="importDataBackup(this)">
+    </div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs no-print">
+    <button class="nav-btn active" onclick="setTab('dashboard')">📊 แดชบอร์ด (Dashboard)</button>
+    <button class="nav-btn" onclick="setTab('invoice')">📝 ออกเอกสาร & พิมพ์ PDF</button>
+    <button class="nav-btn" onclick="setTab('templates')">📂 คลัง Template (รองรับ 20+ แบบ)</button>
+    <button class="nav-btn" onclick="setTab('employers')">👥 นายจ้าง / สถานประกอบการ</button>
+    <button class="nav-btn" onclick="setTab('workers')">🪪 ลูกจ้างต่างด้าว (Auto Passport/รหัส)</button>
+    <button class="nav-btn" onclick="setTab('settings')">⚙️ ตั้งค่าบริษัท & โลโก้</button>
+  </nav>
+
+  <!-- TAB 1: DASHBOARD -->
+  <section id="tab-dashboard" class="tab-pane active no-print">
+    <div class="stats-grid">
+      <div class="stat-card" style="border-left-color: var(--primary);">
+        <div class="stat-title">เอกสารทั้งหมด</div>
+        <div class="stat-val" style="color:var(--primary);" id="stat-total-docs">0 ฉบับ</div>
+        <div style="font-size:12px; color:#64748b; margin-top:4px;" id="stat-total-amt">0 บาท</div>
+      </div>
+      <div class="stat-card" style="border-left-color: var(--warning);">
+        <div class="stat-title">ค้างชำระ / รอเก็บเงิน (Pending)</div>
+        <div class="stat-val" style="color:var(--warning);" id="stat-pending-amt">0 บาท</div>
+        <div style="font-size:12px; color:#64748b; margin-top:4px;" id="stat-pending-count">0 ฉบับ</div>
+      </div>
+      <div class="stat-card" style="border-left-color: var(--success);">
+        <div class="stat-title">ปิดบิลแล้ว / รับเงินแล้ว (Completed)</div>
+        <div class="stat-val" style="color:var(--success);" id="stat-completed-amt">0 บาท</div>
+        <div style="font-size:12px; color:#64748b; margin-top:4px;" id="stat-completed-count">0 ฉบับ</div>
+      </div>
+      <div class="stat-card" style="border-left-color: #64748b;">
+        <div class="stat-title">แบบร่าง (ยังไม่ออกบิล/Draft)</div>
+        <div class="stat-val" style="color:#64748b;" id="stat-draft-amt">0 บาท</div>
+        <div style="font-size:12px; color:#64748b; margin-top:4px;" id="stat-draft-count">0 ฉบับ</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">รายการบิลทั้งหมดในระบบ</h3>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="dash-search" placeholder="ค้นหาเลขที่บิล, ชื่อนายจ้าง..." oninput="renderDashboardTable()" style="padding:6px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; width:220px;">
+          <select id="dash-filter-status" onchange="renderDashboardTable()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+            <option value="ALL">สถานะทั้งหมด</option>
+            <option value="Pending">รอเก็บเงิน / ค้างจ่าย</option>
+            <option value="Completed">ปิดบิลแล้ว</option>
+            <option value="Draft">แบบร่าง</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>เลขที่เอกสาร</th>
+              <th>วันที่</th>
+              <th>นายจ้าง / สถานประกอบการ</th>
+              <th>ประเภท</th>
+              <th style="text-align:right;">ยอดรวม (บาท)</th>
+              <th>สถานะการชำระ</th>
+              <th style="text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="dash-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: INVOICE GENERATOR & PREVIEW -->
+  <section id="tab-invoice" class="tab-pane">
+    <div id="invoice-workspace">
+      <!-- Left Controls (no-print) -->
+      <div id="invoice-sidebar" class="no-print">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">ข้อมูลบิล & โหลด Template</h3>
+            <button class="btn btn-sm btn-light" onclick="resetInvoiceForm()">ล้างฟอร์ม</button>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>⚡ ดึงจาก Template (บันทึกได้ 20 แบบ):</label>
+            <select id="inv-select-template" onchange="applyTemplateToInvoice(this.value)">
+              <option value="">-- เลือก Template บริการมาตรฐาน --</option>
+            </select>
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label>ประเภทเอกสาร:</label>
+              <select id="inv-doc-type" onchange="updateLivePreview()">
+                <option value="ใบเบิกเงิน">ใบเบิกเงิน (Cash Advance)</option>
+                <option value="ใบเสนอราคา">ใบเสนอราคา (Quotation)</option>
+                <option value="ใบแจ้งหนี้ / วางบิล">ใบแจ้งหนี้ / วางบิล</option>
+                <option value="ใบเสร็จรับเงิน">ใบเสร็จรับเงิน (Receipt)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>สถานะบิล:</label>
+              <select id="inv-doc-status" onchange="updateLivePreview()">
+                <option value="Pending">รอเก็บเงิน / ค้างจ่าย</option>
+                <option value="Draft">แบบร่าง (ยังไม่ออกบิล)</option>
+                <option value="Completed">ปิดบิลแล้ว (ชำระเงินครบ)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="form-group">
+              <label>เลขที่เอกสาร:</label>
+              <input type="text" id="inv-doc-no" value="INV-2026-001" oninput="updateLivePreview()">
+            </div>
+            <div class="form-group">
+              <label>วันที่ระบุในบิล:</label>
+              <input type="date" id="inv-doc-date" onchange="updateLivePreview()">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px;">
+            <label>นายจ้าง / บริษัท (ดึงข้อมูลอัตโนมัติ):</label>
+            <select id="inv-select-employer" onchange="applyEmployerToInvoice(this.value)">
+              <option value="">-- เลือกนายจ้าง --</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label>➕ เพิ่มลูกจ้างเข้าบิล (ดึง Passport/เลขต่างด้าว):</label>
+            <div style="display:flex; gap:6px;">
+              <select id="inv-select-worker" style="flex:1;">
+                <option value="">-- เลือกลูกจ้างที่ต้องการแทรก --</option>
+              </select>
+              <button class="btn btn-sm btn-primary" onclick="addSelectedWorkerToActiveItem()">+ ใส่ในบิล</button>
+            </div>
+          </div>
+
+          <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:14px; font-weight:700; color:var(--primary);">รายการบริการ & ราคา</h4>
+            <button class="btn btn-sm btn-primary" onclick="addNewLineItem()">+ เพิ่มแถว</button>
+          </div>
+          <div id="line-items-wrapper"></div>
+
+          <!-- ระบบผ่อนชำระ / แบ่งงวด (เปิด-ปิดได้ 3-5 งวด) -->
+          <div style="margin-top:14px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-weight:700; color:var(--primary); font-size:13.5px; cursor:pointer; display:flex; align-items:center;">
+                <input type="checkbox" id="chk-installment-toggle" onchange="toggleInstallmentSystem(this.checked)" style="margin-right:8px; width:18px; height:18px; cursor:pointer;">
+                💳 เปิดใช้งานระบบผ่อนชำระ (แบ่งจ่ายเป็นงวด)
+              </label>
+              <span id="installment-badge" style="font-size:11px; background:#dbeafe; color:#1e40af; padding:2px 8px; border-radius:12px; font-weight:700; display:none;">3 งวด (สูงสุด 5)</span>
+            </div>
+
+            <div id="installment-editor-panel" style="display:none; margin-top:12px;">
+              <p style="font-size:11.5px; color:#475569; margin-bottom:8px;">
+                ระบบมีค่าเริ่มต้น 3 งวด และสามารถเพิ่มได้สูงสุด 5 งวด (งวดสุดท้ายจะดึงยอดเงินคงค้างอัตโนมัติ)
+              </p>
+              <div id="installment-rows-container"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <button type="button" class="btn btn-sm btn-light" id="btn-add-installment" onclick="addInstallmentRow()" style="border-color:#3b82f6; color:#1d4ed8;">+ เพิ่มงวด (สูงสุด 5)</button>
+                <button type="button" class="btn btn-sm btn-light" onclick="resetDefaultInstallments()">คืนค่าเริ่มต้น 3 งวด</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:12px;">
+            <label>หมายเหตุเพิ่มเติม / ข้อมูลบัญชีโอนเงิน:</label>
+            <textarea id="inv-notes" rows="2" oninput="updateLivePreview()" placeholder="เช่น ทำการโอนให้กับหมายเลขบัญชี 408-244183-8 ธนาคารกสิกรไทย คุณกรภัทร์ ผดุงเลิศ"></textarea>
+          </div>
+
+          <div style="margin-top:18px; display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-primary" style="padding:12px;" onclick="window.print()">🖨️ Export PDF / สั่งพิมพ์ A4</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-success" style="flex:1;" onclick="saveCurrentInvoiceToStorage()">💾 บันทึกเอกสารนี้</button>
+              <button class="btn btn-warning" style="flex:1;" onclick="saveInvoiceAsTemplate()">⭐ เซฟเป็น Template</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Preview (A4 Paper) -->
+      <div class="invoice-paper-wrapper">
+        <div style="position:absolute; top:8px; left:12px; font-size:11px; color:#fff; display:none;" class="mobile-scroll-hint no-print">👈 เลื่อนซ้าย-ขวา เพื่อดูเอกสารเต็มแผ่น 👉</div>
+        <div class="invoice-a4" id="printable-invoice">
+          <div>
+            <!-- Header -->
+            <div class="inv-header">
+              <div class="inv-branding">
+                <img id="p-logo" class="inv-logo" src="" alt="Company Logo" style="display:none;">
+                <div class="inv-comp-details">
+                  <h2 id="p-company-name">TRP SUPPLY & SERVICE</h2>
+                  <p id="p-company-address">99/72 หมู่ที่ 6 ตำบลเนินพระ อำเภอเมืองระยอง จังหวัดระยอง 21150</p>
+                  <p id="p-company-contact">โทร. 062-453-9359 | Email: infocenter.trp@gmail.com</p>
+                </div>
+              </div>
+              <div class="inv-doc-details">
+                <h1 id="p-doc-title">ใบเบิกเงิน</h1>
+                <div class="inv-meta-grid">
+                  <div><strong>เลขที่ / No:</strong> <span id="p-doc-number">INV-2026-001</span></div>
+                  <div><strong>วันที่ / Date:</strong> <span id="p-doc-date">10 ตุลาคม 2569</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parties -->
+            <div class="inv-parties">
+              <div class="party-box">
+                <div class="party-title">เรียน : นายจ้าง / สถานประกอบการ (ATTN)</div>
+                <div id="p-employer-title" style="font-weight:700;">-</div>
+                <div id="p-employer-addr" style="font-size:11.5px; color:#333;">-</div>
+                <div id="p-employer-phone" style="font-size:11.5px; color:#333;">-</div>
+              </div>
+              <div class="party-box">
+                <div class="party-title">จาก : ผู้จัดทำ / เบิกจ่าย (FROM)</div>
+                <div id="p-sender-name" style="font-weight:700;">คุณกรภัทร์ ผดุงเลิศ (คุณป้อม)</div>
+                <div id="p-sender-phone" style="font-size:11.5px; color:#333;">โทร. 062-453-9359</div>
+                <div style="font-size:11.5px; color:#333;">ผู้ประสานงานจัดทำเอกสารแรงงานต่างด้าว</div>
+              </div>
+            </div>
+
+            <!-- Items Table (ขยายช่องรายละเอียด +65% ลดขนาดช่องตัวเลข) -->
+            <table class="inv-items-table">
+              <thead>
+                <tr>
+                  <th style="width:6%; white-space:nowrap;">ลำดับ<br>ITEM</th>
+                  <th style="width:64%;">รายละเอียด<br>DETAILS</th>
+                  <th style="width:8%; white-space:nowrap;">จำนวนคน<br>UNIT</th>
+                  <th style="width:10%; white-space:nowrap;">ราคาต่อหน่วย<br>PRICE/UNIT</th>
+                  <th style="width:12%; white-space:nowrap;">ราคา (บาท)<br>AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody id="p-items-tbody"></tbody>
+            </table>
+
+            <!-- Total Amount (แถวเดียว: ตัวอักษรภาษาไทยชิดขวา + รวมทั้งสิ้น / GRAND TOTAL: + ยอดเงิน) -->
+            <table class="inv-totals-table">
+              <tr>
+                <td style="width:52%; text-align:right; font-style:italic; font-weight:600; padding:8px 12px; color:#1e293b; background:#f8fafc;" id="p-baht-text">(-บาทถ้วน-)</td>
+                <td style="width:32%; text-align:right; white-space:nowrap; font-weight:700; font-size:12.5px; padding:8px 8px; background:#f8fafc;">รวมทั้งสิ้น / GRAND TOTAL:</td>
+                <td style="width:16%; text-align:right; font-size:15px; color:#1e3a8a; font-weight:800; padding:8px 12px; background:#f8fafc;" id="p-grand-total">0.00</td>
+              </tr>
+            </table>
+
+            <!-- Notes & Installments (แสดงผลตามโหมดผ่อนชำระ) -->
+            <div class="inv-notes-box">
+              <strong id="p-notes-title">หมายเหตุ / เงื่อนไขการชำระเงิน:</strong>
+              <div id="p-notes-display" style="white-space:pre-line; color:#1e293b; margin-top:4px; line-height:1.5;">-</div>
+            </div>
+          </div>
+
+          <!-- Signatures (แสดงเฉพาะผู้เบิกเงิน จัดวางตำแหน่งขวาสวยงาม) -->
+          <div class="inv-signatures" style="justify-content: flex-end;">
+            <div class="sig-col" style="width: 320px;">
+              <div class="sig-space" style="height: 50px;"></div>
+              <div class="sig-line"></div>
+              <div id="p-sig-signer-name" style="font-weight:600;">นางสาวกรภัทร์ ผดุงเลิศ</div>
+              <div style="font-size:12px; color:#334155; margin-top:2px; font-weight:600;">ผู้เบิกเงิน</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: TEMPLATES MANAGEMENT -->
+  <section id="tab-templates" class="tab-pane no-print">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">จัดการ Template บริการ (รองรับบันทึกได้ 20 รูปแบบ)</h3>
+          <p style="font-size:13px; color:#64748b;">เซฟโครงสร้างบริการ ราคามาตรฐาน และเงื่อนไขงวดชำระ เพื่อดึงไปออกบิลได้ในคลิกเดียว</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateTemplateModal()">+ สร้าง Template ใหม่</button>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:22%;">ชื่อ Template</th>
+              <th style="width:15%;">สัญชาติ / หมวดหมู่</th>
+              <th style="width:38%;">รายการบริการมาตรฐานใน Template</th>
+              <th style="text-align:right; width:15%;">ราคารวมเฉลี่ย</th>
+              <th style="text-align:center; width:10%;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="tmpl-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: EMPLOYERS -->
+  <section id="tab-employers" class="tab-pane no-print">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">ฐานข้อมูลนายจ้าง / สถานประกอบการ</h3>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ชื่อนายจ้าง / บริษัท:*</label>
+          <input type="text" id="new-emp-name" placeholder="เช่น บจก. อาร์ ซี เมดิคอล เซนเตอร์">
+        </div>
+        <div class="form-group">
+          <label>ที่อยู่สำนักงาน / โรงงาน:</label>
+          <input type="text" id="new-emp-addr" placeholder="99/72 ต.เนินพระ อ.เมือง จ.ระยอง">
+        </div>
+        <div class="form-group">
+          <label>เบอร์โทรศัพท์:</label>
+          <input type="text" id="new-emp-phone" placeholder="038-xxxxxx หรือ 081-xxxxxxx">
+        </div>
+        <div class="form-group" style="justify-content:flex-end;">
+          <button class="btn btn-primary" style="height:40px;" onclick="addEmployer()">+ เพิ่มนายจ้าง</button>
+        </div>
+      </div>
+      <div class="table-responsive" style="margin-top:15px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ชื่อนายจ้าง / บริษัท</th>
+              <th>ที่อยู่</th>
+              <th>เบอร์โทร</th>
+              <th style="text-align:center;">จำนวนลูกจ้าง</th>
+              <th style="text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="emp-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 5: WORKERS -->
+  <section id="tab-workers" class="tab-pane no-print">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">ฐานข้อมูลลูกจ้างต่างด้าว</h3>
+          <p style="font-size:13px; color:#64748b;">ระบบจะตรวจเช็กอัตโนมัติ: หากไม่มีเลข Passport จะดึงหมายเลขประจำตัวคนต่างด้าวมาใช้แทนทันที</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>สังกัดนายจ้าง:*</label>
+          <select id="new-w-emp-id"></select>
+        </div>
+        <div class="form-group">
+          <label>ชื่อ-นามสกุล ลูกจ้าง:*</label>
+          <input type="text" id="new-w-name" placeholder="MR. SAKHONE SOVIENGXAY">
+        </div>
+        <div class="form-group">
+          <label>หมายเลข Passport:</label>
+          <input type="text" id="new-w-passport" placeholder="เช่น PA0599887 (ถ้ามี)">
+        </div>
+        <div class="form-group">
+          <label>หมายเลขประจำตัวคนต่างด้าว (บัตรชมพู):</label>
+          <input type="text" id="new-w-alien" placeholder="เช่น 0-1234-56789-01-2 (กรณีไม่มี Passport)">
+        </div>
+        <div class="form-group" style="justify-content:flex-end;">
+          <button class="btn btn-primary" style="height:40px;" onclick="addWorker()">+ เพิ่มลูกจ้าง</button>
+        </div>
+      </div>
+      <div class="table-responsive" style="margin-top:15px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ชื่อลูกจ้าง</th>
+              <th>สังกัดนายจ้าง</th>
+              <th>หมายเลข Passport</th>
+              <th>เลขประจำตัวคนต่างด้าว</th>
+              <th>รหัสที่จะปรากฏในบิลอัตโนมัติ</th>
+              <th style="text-align:center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="worker-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 6: SETTINGS -->
+  <section id="tab-settings" class="tab-pane no-print">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">ตั้งค่าภาพลักษณ์องค์กร & โลโก้ (แก้ไขเองได้)</h3>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>โลโก้บริษัท (อัปโหลดรูปภาพ PNG/JPG):</label>
+          <input type="file" id="cfg-logo-file" accept="image/*" onchange="uploadLogo(this)">
+          <span style="font-size:11.5px; color:#64748b; margin-top:4px;">ระบบจะบันทึกรูปภาพไว้ในบราวเซอร์ของเครื่องนี้ถาวร</span>
+        </div>
+        <div class="form-group">
+          <label>ชื่อบริษัท / ร้านค้า (หัวกระดาษซ้าย):</label>
+          <input type="text" id="cfg-comp-name" oninput="saveSettings()">
+        </div>
+        <div class="form-group">
+          <label>ที่อยู่บริษัท:</label>
+          <input type="text" id="cfg-comp-addr" oninput="saveSettings()">
+        </div>
+        <div class="form-group">
+          <label>เบอร์ติดต่อ & อีเมล:</label>
+          <input type="text" id="cfg-comp-contact" oninput="saveSettings()">
+        </div>
+        <div class="form-group">
+          <label>ชื่อผู้ลงนาม / ผู้เบิกเงิน (ท่อนล่างขวา):</label>
+          <input type="text" id="cfg-signer-name" oninput="saveSettings()">
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==========================================================
+   DEFAULT SEED DATA & LOCALSTORAGE LOGIC
+========================================================== */
+const STORAGE_KEY = "TRP_BILLING_SYSTEM_DATA_V1";
+
+let appData = {
+  settings: {
+    companyName: "TRP SUPPLY & SERVICE",
+    address: "99/72 หมู่ที่ 6 ตำบลเนินพระ อำเภอเมืองระยอง จังหวัดระยอง 21150",
+    contact: "โทร. 062-453-9359 | Email: infocenter.trp@gmail.com",
+    signerName: "นางสาวกรภัทร์ ผดุงเลิศ",
+    logoBase64: ""
+  },
+  employers: [
+    { id: 1, name: "นาย กชกร มีมาก", address: "ระยอง", phone: "081-xxxxxxx" },
+    { id: 2, name: "บริษัท อาร์ ซี เมดิคอล เซนเตอร์ จำกัด", address: "99/72 หมู่ที่ 6 ตำบลเนินพระ อำเภอเมืองระยอง จังหวัดระยอง 21150", phone: "062-453-9359" }
+  ],
+  workers: [
+    { id: 1, empId: 1, name: "MR.CHET CHEK", passport: "N01104178", alienId: "" },
+    { id: 2, empId: 1, name: "MISS.NOEUNG SUK", passport: "N01104179", alienId: "" },
+    { id: 3, empId: 2, name: "MR.SAKHONE SOVIENGXAY", passport: "PA0599887", alienId: "" },
+    { id: 4, empId: 2, name: "MISS.LOT KHAMLA", passport: "", alienId: "0-0012-34567-89-0" } // ไม่มี Passport แต่มีเลขต่างด้าว
+  ],
+  templates: [
+    {
+      id: 1,
+      name: "MOU กัมพูชา 2 ปี + ตีปิดวีซ่าเดิม",
+      category: "กัมพูชา",
+      items: [
+        {
+          title: "ทดรองจ่ายงาน ขึ้นทะเบียนใหม่ด้วยระบบ MOU",
+          unit: 2,
+          price: 22000,
+          subitems: ["ได้ใบอนุญาตทำงาน 2 ปี วีซ่า 2 ปี"]
+        },
+        {
+          title: "ทดรองจ่ายงาน ตีปิดวีซ่าเดิม",
+          unit: 2,
+          price: 4500,
+          subitems: []
+        }
+      ],
+      notes: "ท่อนที่ 1 ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU กัมพูชา 2 คน ชำระ 2x10,000 บาท รวม 20,000 บาท (ขั้นตอนเก็บเอกสาร)\nท่อนที่ 2 ชำระ 2x10,000 บาท รวม 20,000 บาท (ขั้นตอนเนมลิสต์และตีปิดวีซ่าเดิม)\nท่อนที่ 3 ชำระ 2x6,500 บาท รวม 13,000 บาท (ขั้นตอนขอวีซ่าจากกรมแรงงาน)"
+    },
+    {
+      id: 2,
+      name: "MOU ลาว ขึ้นทะเบียนใหม่ (ครบวงจร)",
+      category: "ลาว",
+      items: [
+        {
+          title: "ทดรองจ่ายงานขึ้นทะเบียนใหม่ด้วยระบบ MOU - ลาว",
+          unit: 2,
+          price: 16000,
+          subitems: [
+            "ใบอนุญาตทำงาน 2 ปี",
+            "วีซ่าทำงาน 2 ปี",
+            "ตรวจสุขภาพ",
+            "อบรมศูนย์แรกรับ",
+            "แจ้งที่พักอาศัย",
+            "ค่าที่พัก",
+            "ค่าเดินทางจาก สถานที่ทำงาน - ด่านหนองคาย จังหวัดหนองคาย",
+            "ค่าเดินทางจากด่านหนองคาย - ด่านลาว - เวียงจันทน์ ไป-กลับ",
+            "(ไม่รวม 200 บาท ค่าธรรมเนียมตีปิดวีซ่าเดิม)",
+            "ค่าเดินทางจากด่านหนองคาย - ศูนย์อบรมจังหวัดหนองคาย",
+            "ค่าเดินทางจาก ศูนย์อบรมหนองคาย - สถานที่ทำงาน"
+          ]
+        }
+      ],
+      notes: "หมายเหตุ: วีซ่าเดิมห้ามขาด\nทำการโอนให้กับหมายเลขบัญชี 408-244183-8 ธนาคารกสิกรไทย คุณกรภัทร์ ผดุงเลิศ"
+    }
+  ],
+  invoices: [
+    {
+      id: "INV-2024-0321",
+      date: "2024-03-21",
+      docType: "ใบเบิกเงิน",
+      employerId: 1,
+      employerName: "นาย กชกร มีมาก",
+      status: "Completed",
+      total: 53000,
+      items: [
+        {
+          title: "ทดรองจ่ายงาน ขึ้นทะเบียนใหม่ด้วยระบบ MOU",
+          unit: 2,
+          price: 22000,
+          subitems: ["ได้ใบอนุญาตทำงาน 2 ปี วีซ่า 2 ปี"],
+          workers: ["MR.CHET CHEK / N01104178", "MISS.NOEUNG SUK / N01104179"]
+        },
+        {
+          title: "ทดรองจ่ายงาน ตีปิดวีซ่าเดิม",
+          unit: 2,
+          price: 4500,
+          subitems: [],
+          workers: ["MR.CHET CHEK / N01104178", "MISS.NOEUNG SUK / N01104179"]
+        }
+      ],
+      notes: "รวมชำระ 3 งวดครบถ้วนแล้ว"
+    },
+    {
+      id: "INV-2025-1002",
+      date: "2025-10-02",
+      docType: "ใบเบิกเงิน",
+      employerId: 2,
+      employerName: "บริษัท อาร์ ซี เมดิคอล เซนเตอร์ จำกัด",
+      status: "Pending",
+      total: 32000,
+      items: [
+        {
+          title: "ทดรองจ่ายงานขึ้นทะเบียนใหม่ด้วยระบบ MOU - ลาว",
+          unit: 2,
+          price: 16000,
+          subitems: ["ใบอนุญาตทำงาน 2 ปี", "วีซ่าทำงาน 2 ปี", "ตรวจสุขภาพ", "ค่าเดินทางด่านหนองคาย"],
+          workers: ["MR.SAKHONE SOVIENGXAY / PA0599887", "MISS.LOT KHAMLA / เลขต่างด้าว: 0-0012-34567-89-0"]
+        }
+      ],
+      notes: "โอนเข้า ธ.กสิกรไทย 408-244183-8 คุณกรภัทร์ ผดุงเลิศ"
+    }
+  ]
+};
+
+// Load from LocalStorage if available
+function loadAllData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      appData = JSON.parse(saved);
+    } catch(e) {
+      console.error("Failed to parse localStorage data", e);
+    }
+  }
+}
+
+function persistData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+}
+
+/* ==========================================================
+   NAVIGATION
+========================================================== */
+function setTab(tabName) {
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+  event.currentTarget.classList.add('active');
+  const target = document.getElementById('tab-' + tabName);
+  if (target) target.classList.add('active');
+
+  if (tabName === 'dashboard') renderDashboardTable();
+  if (tabName === 'templates') renderTemplatesTable();
+  if (tabName === 'employers') renderEmployersTable();
+  if (tabName === 'workers') renderWorkersTable();
+  if (tabName === 'settings') populateSettingsForm();
+  if (tabName === 'invoice') refreshInvoiceSelectors();
+}
+
+/* ==========================================================
+   DASHBOARD
+========================================================== */
+function renderDashboardTable() {
+  const tbody = document.getElementById('dash-table-body');
+  tbody.innerHTML = '';
+  
+  const search = (document.getElementById('dash-search')?.value || '').toLowerCase().trim();
+  const filterStatus = document.getElementById('dash-filter-status')?.value || 'ALL';
+
+  let totalCount = 0;
+  let totalSum = 0;
+  let pendingCount = 0;
+  let pendingSum = 0;
+  let completedCount = 0;
+  let completedSum = 0;
+  let draftCount = 0;
+  let draftSum = 0;
+
+  appData.invoices.forEach(inv => {
+    totalCount++;
+    totalSum += inv.total;
+    if (inv.status === 'Pending') { pendingCount++; pendingSum += inv.total; }
+    else if (inv.status === 'Completed') { completedCount++; completedSum += inv.total; }
+    else if (inv.status === 'Draft') { draftCount++; draftSum += inv.total; }
+
+    // Filter match
+    const matchSearch = inv.id.toLowerCase().includes(search) || inv.employerName.toLowerCase().includes(search);
+    const matchStatus = filterStatus === 'ALL' || inv.status === filterStatus;
+
+    if (matchSearch && matchStatus) {
+      const tr = document.createElement('tr');
+      const statusLabel = inv.status === 'Completed' ? 'ปิดบิลแล้ว' : (inv.status === 'Pending' ? 'รอเก็บเงิน / ค้างจ่าย' : 'แบบร่าง');
+      tr.innerHTML = `
+        <td><strong>${inv.id}</strong></td>
+        <td>${inv.date}</td>
+        <td>${inv.employerName}</td>
+        <td>${inv.docType}</td>
+        <td style="text-align:right; font-weight:700;">${inv.total.toLocaleString()}</td>
+        <td><span class="status-badge status-${inv.status}">${statusLabel}</span></td>
+        <td style="text-align:center;">
+          <button class="btn btn-sm btn-light" onclick="loadInvoiceForEdit('${inv.id}')">✏️ เปิดดู / พิมพ์</button>
+          <button class="btn btn-sm btn-danger" style="margin-left:4px;" onclick="deleteInvoice('${inv.id}')">ลบ</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  });
+
+  document.getElementById('stat-total-docs').innerText = totalCount + ' ฉบับ';
+  document.getElementById('stat-total-amt').innerText = 'มูลค่ารวม ' + totalSum.toLocaleString() + ' บาท';
+  document.getElementById('stat-pending-amt').innerText = pendingSum.toLocaleString() + ' บาท';
+  document.getElementById('stat-pending-count').innerText = pendingCount + ' ฉบับค้างจ่าย';
+  document.getElementById('stat-completed-amt').innerText = completedSum.toLocaleString() + ' บาท';
+  document.getElementById('stat-completed-count').innerText = completedCount + ' ฉบับชำระแล้ว';
+  document.getElementById('stat-draft-amt').innerText = draftSum.toLocaleString() + ' บาท';
+  document.getElementById('stat-draft-count').innerText = draftCount + ' ฉบับแบบร่าง';
+}
+
+function deleteInvoice(id) {
+  if (confirm(`ยืนยันการลบเอกสารเลขที่ ${id} หรือไม่?`)) {
+    appData.invoices = appData.invoices.filter(i => i.id !== id);
+    persistData();
+    renderDashboardTable();
+  }
+}
+
+/* ==========================================================
+   INVOICE GENERATOR & LINE ITEMS
+========================================================== */
+let activeLineItems = [];
+
+function resetInvoiceForm() {
+  document.getElementById('inv-doc-no').value = 'INV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
+  document.getElementById('inv-doc-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('inv-doc-type').value = 'ใบเบิกเงิน';
+  document.getElementById('inv-doc-status').value = 'Pending';
+  document.getElementById('inv-select-employer').value = '';
+  document.getElementById('inv-notes').value = 'โอนเข้า ธ.กสิกรไทย 408-244183-8 คุณกรภัทร์ ผดุงเลิศ';
+  installmentConfig.enabled = false;
+  const chkInstall = document.getElementById('chk-installment-toggle');
+  if (chkInstall) chkInstall.checked = false;
+  toggleInstallmentSystem(false);
+  activeLineItems = [
+    {
+      title: "ทดรองจ่ายงานขึ้นทะเบียนใหม่ด้วยระบบ MOU",
+      unit: 1,
+      price: 20000,
+      subitems: ["ใบอนุญาตทำงาน 2 ปี วีซ่า 2 ปี"],
+      workers: []
+    }
+  ];
+  renderLineItemCards();
+  updateLivePreview();
+}
+
+function refreshInvoiceSelectors() {
+  // Employer select
+  const empSel = document.getElementById('inv-select-employer');
+  const prevEmp = empSel.value;
+  empSel.innerHTML = '<option value="">-- เลือกนายจ้าง / สถานประกอบการ --</option>';
+  appData.employers.forEach(e => {
+    empSel.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+  });
+  if (prevEmp) empSel.value = prevEmp;
+
+  // Template select
+  const tmplSel = document.getElementById('inv-select-template');
+  tmplSel.innerHTML = '<option value="">-- เลือก Template บริการมาตรฐาน --</option>';
+  appData.templates.forEach(t => {
+    tmplSel.innerHTML += `<option value="${t.id}">${t.name} (${t.category})</option>`;
+  });
+
+  refreshWorkerDropdownByEmployer();
+}
+
+function refreshWorkerDropdownByEmployer() {
+  const empId = document.getElementById('inv-select-employer').value;
+  const wSel = document.getElementById('inv-select-worker');
+  wSel.innerHTML = '<option value="">-- เลือกลูกจ้างที่ต้องการแทรก --</option>';
+
+  const filtered = empId ? appData.workers.filter(w => w.empId == empId) : appData.workers;
+  filtered.forEach(w => {
+    const idTag = w.passport ? w.passport : (w.alienId ? `เลขต่างด้าว: ${w.alienId}` : 'ไม่ระบุรหัส');
+    wSel.innerHTML += `<option value="${w.name} / ${idTag}">${w.name} (${idTag})</option>`;
+  });
+}
+
+function applyEmployerToInvoice(empId) {
+  refreshWorkerDropdownByEmployer();
+  updateLivePreview();
+}
+
+function applyTemplateToInvoice(tmplId) {
+  if (!tmplId) return;
+  const tmpl = appData.templates.find(t => t.id == tmplId);
+  if (!tmpl) return;
+
+  activeLineItems = JSON.parse(JSON.stringify(tmpl.items)).map(it => ({
+    ...it,
+    workers: it.workers || []
+  }));
+
+  if (tmpl.notes) {
+    document.getElementById('inv-notes').value = tmpl.notes;
+  }
+  renderLineItemCards();
+  updateLivePreview();
+}
+
+function renderLineItemCards() {
+  const wrapper = document.getElementById('line-items-wrapper');
+  wrapper.innerHTML = '';
+
+  activeLineItems.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.style = "background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:10px;";
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-weight:700; font-size:13px; color:var(--primary);">รายการที่ ${index + 1}</span>
+        <button class="btn btn-sm btn-danger" onclick="removeLineItem(${index})">ลบแถวนี้</button>
+      </div>
+      <div class="form-group" style="margin-bottom:8px;">
+        <label>📌 ชื่องาน / รายละเอียดหลัก:</label>
+        <input type="text" value="${item.title}" oninput="updateLineItemProp(${index}, 'title', this.value)">
+      </div>
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:8px;">
+        <div class="form-group">
+          <label>จำนวนคน (Unit):</label>
+          <input type="number" min="1" value="${item.unit}" oninput="updateLineItemProp(${index}, 'unit', parseFloat(this.value)||0)">
+        </div>
+        <div class="form-group">
+          <label>ราคาต่อหน่วย (บาท):</label>
+          <input type="number" min="0" value="${item.price}" oninput="updateLineItemProp(${index}, 'price', parseFloat(this.value)||0)">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px;">
+        <label>📝 ข้อย่อย / ขอบเขตงาน (บรรทัดละ 1 ข้อ):</label>
+        <textarea rows="2" style="font-size:12px;" placeholder="เช่น ใบอนุญาตทำงาน 2 ปี, ตรวจสุขภาพ (เว้นว่างได้)" oninput="updateLineItemSubsOnly(${index}, this.value)">${(item.subitems || []).join('\n')}</textarea>
+      </div>
+      <div class="form-group">
+        <label style="color:#1e3a8a; font-weight:700;">👤 รายชื่อแรงงาน / ลูกจ้าง (แยกช่องต่างหาก - บรรทัดละ 1 คน):</label>
+        <textarea rows="2" style="font-size:12px; border-color:#93c5fd; background:#f0f7ff;" placeholder="เช่น MR.CHET CHEK / N01104178" oninput="updateLineItemWorkersOnly(${index}, this.value)">${(item.workers || []).join('\n')}</textarea>
+      </div>
+    `;
+    wrapper.appendChild(div);
+  });
+}
+
+function addNewLineItem() {
+  activeLineItems.push({
+    title: "บริการเพิ่มเติม",
+    unit: 1,
+    price: 1000,
+    subitems: [],
+    workers: []
+  });
+  renderLineItemCards();
+  updateLivePreview();
+}
+
+function removeLineItem(idx) {
+  activeLineItems.splice(idx, 1);
+  renderLineItemCards();
+  updateLivePreview();
+}
+
+function updateLineItemProp(idx, prop, val) {
+  activeLineItems[idx][prop] = val;
+  updateLivePreview();
+}
+
+function updateLineItemSubsOnly(idx, text) {
+  activeLineItems[idx].subitems = text.split('\n').filter(s => s.trim() !== '');
+  updateLivePreview();
+}
+
+function updateLineItemWorkersOnly(idx, text) {
+  activeLineItems[idx].workers = text.split('\n').filter(s => s.trim() !== '');
+  updateLivePreview();
+}
+
+function addSelectedWorkerToActiveItem() {
+  const wVal = document.getElementById('inv-select-worker').value;
+  if (!wVal) return alert('กรุณาเลือกลูกจ้างที่ต้องการเพิ่ม');
+  if (activeLineItems.length === 0) addNewLineItem();
+
+  // If there are multiple items, let user specify or default to item 1
+  let targetIndex = 0;
+  if (activeLineItems.length > 1) {
+    let optionsStr = activeLineItems.map((it, i) => `${i + 1}: ${it.title}`).join('\n');
+    let chosen = prompt(`ต้องการใส่ลูกจ้างคนนี้ลงในรายการใด?\n${optionsStr}\n(พิมพ์หมายเลข 1 ถึง ${activeLineItems.length})`, "1");
+    if (chosen) {
+      let parsed = parseInt(chosen) - 1;
+      if (parsed >= 0 && parsed < activeLineItems.length) {
+        targetIndex = parsed;
+      }
+    }
+  }
+
+  if (!activeLineItems[targetIndex].workers) activeLineItems[targetIndex].workers = [];
+  activeLineItems[targetIndex].workers.push(wVal);
+
+  renderLineItemCards();
+  updateLivePreview();
+}
+
+/* ==========================================================
+   LIVE PREVIEW LOGIC
+========================================================== */
+function updateLivePreview() {
+  // Document Type & Number
+  const docType = document.getElementById('inv-doc-type').value;
+  const docNo = document.getElementById('inv-doc-no').value || '-';
+  const docDate = document.getElementById('inv-doc-date').value;
+
+  document.getElementById('p-doc-title').innerText = docType;
+  document.getElementById('p-doc-number').innerText = docNo;
+  document.getElementById('p-doc-date').innerText = docDate ? formatDateThai(docDate) : '-';
+
+  // Employer info
+  const empId = document.getElementById('inv-select-employer').value;
+  const employer = appData.employers.find(e => e.id == empId);
+  if (employer) {
+    document.getElementById('p-employer-title').innerText = employer.name;
+    document.getElementById('p-employer-addr').innerText = employer.address || '-';
+    document.getElementById('p-employer-phone').innerText = 'โทร : ' + (employer.phone || '-');
+  } else {
+    document.getElementById('p-employer-title').innerText = '-';
+    document.getElementById('p-employer-addr').innerText = '-';
+    document.getElementById('p-employer-phone').innerText = '-';
+  }
+
+  // Company / Settings info
+  document.getElementById('p-company-name').innerText = appData.settings.companyName;
+  document.getElementById('p-company-address').innerText = appData.settings.address;
+  document.getElementById('p-company-contact').innerText = appData.settings.contact;
+  document.getElementById('p-sig-signer-name').innerText = appData.settings.signerName;
+
+  const logoEl = document.getElementById('p-logo');
+  if (appData.settings.logoBase64) {
+    logoEl.src = appData.settings.logoBase64;
+    logoEl.style.display = 'block';
+  } else {
+    logoEl.style.display = 'none';
+  }
+
+  // Items table
+  const tbody = document.getElementById('p-items-tbody');
+  tbody.innerHTML = '';
+  let grandTotal = 0;
+
+  activeLineItems.forEach((item, i) => {
+    const lineTotal = (item.unit || 0) * (item.price || 0);
+    grandTotal += lineTotal;
+
+    let subsHtml = '';
+    if (item.subitems && item.subitems.length > 0) {
+      subsHtml += item.subitems.map(s => `<div class="inv-sub-point">• ${s}</div>`).join('');
+    }
+    if (item.workers && item.workers.length > 0) {
+      subsHtml += '<div style="margin-top:6px; padding-top:4px; border-top:1px dashed #cbd5e1;">';
+      subsHtml += '<strong style="font-size:11px; color:#1e3a8a;">รายชื่อแรงงาน:</strong><br>';
+      subsHtml += item.workers.map(w => {
+        let displayHtml = '';
+        if (w.includes(' / ')) {
+          let parts = w.split(' / ');
+          displayHtml = `<strong style="font-weight:700; color:#000;">${parts[0]}</strong> / ${parts.slice(1).join(' / ')}`;
+        } else if (w.includes('/')) {
+          let parts = w.split('/');
+          displayHtml = `<strong style="font-weight:700; color:#000;">${parts[0]}</strong> / ${parts.slice(1).join('/')}`;
+        } else {
+          displayHtml = `<strong style="font-weight:700; color:#000;">${w}</strong>`;
+        }
+        return `<div style="font-size:12px; color:#0f172a; margin-left:10px; line-height:1.45;">- ${displayHtml}</div>`;
+      }).join('');
+      subsHtml += '</div>';
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center; vertical-align:top;">${i + 1}</td>
+      <td style="vertical-align:top;">
+        <div style="font-weight:700; font-size:12.5px;">${item.title}</div>
+        ${subsHtml}
+      </td>
+      <td style="text-align:center; vertical-align:top;">${item.unit}</td>
+      <td style="text-align:right; vertical-align:top;">${(item.price || 0).toLocaleString()}</td>
+      <td style="text-align:right; font-weight:700; vertical-align:top;">${lineTotal.toLocaleString()}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('p-grand-total').innerText = grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 });
+  document.getElementById('p-baht-text').innerText = '(' + thaiBahtText(grandTotal) + ')';
+
+  // Notes & Installments Display (รองรับตัวหนาที่ผลสรุปแต่ละงวด)
+  const titleEl = document.getElementById('p-notes-title');
+  const displayEl = document.getElementById('p-notes-display');
+  const customNotes = (document.getElementById('inv-notes')?.value || '').trim();
+
+  if (installmentConfig.enabled) {
+    if (titleEl) titleEl.innerText = "หมายเหตุ / การผ่อนชำระเงิน:";
+    let htmlOutput = generateInstallmentNoteHtml();
+    if (customNotes) {
+      const sanitizedCustom = customNotes.replace(/\n/g, '<br>');
+      htmlOutput += `<div style="margin-top:8px; padding-top:6px; border-top:1px dashed #cbd5e1; color:#334155;">${sanitizedCustom}</div>`;
+    }
+    if (displayEl) displayEl.innerHTML = htmlOutput || '-';
+  } else {
+    if (titleEl) titleEl.innerText = "หมายเหตุ / เงื่อนไขการชำระเงิน:";
+    if (displayEl) displayEl.innerHTML = customNotes ? customNotes.replace(/\n/g, '<br>') : '-';
+  }
+}
+
+function formatDateThai(dStr) {
+  try {
+    const d = new Date(dStr);
+    const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
+  } catch(e) {
+    return dStr;
+  }
+}
+
+// Convert numbers to Thai Baht text representation
+function thaiBahtText(num) {
+  if (isNaN(num) || num === 0) return "ศูนย์บาทถ้วน";
+  num = Math.round(num * 100) / 100;
+  const numStr = num.toFixed(2);
+  const parts = numStr.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+
+  const digits = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+  const units = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+
+  function convertSection(s) {
+    let res = "";
+    const len = s.length;
+    for (let i = 0; i < len; i++) {
+      const d = parseInt(s[i]);
+      const pos = len - i - 1;
+      if (d !== 0) {
+        if (pos === 0 && d === 1 && len > 1) {
+          res += "เอ็ด";
+        } else if (pos === 1 && d === 1) {
+          res += "สิบ";
+        } else if (pos === 1 && d === 2) {
+          res += "ยี่สิบ";
+        } else {
+          res += digits[d] + units[pos];
+        }
+      }
+    }
+    return res;
+  }
+
+  let text = convertSection(integerPart) + "บาท";
+  if (decimalPart === "00") {
+    text += "ถ้วน";
+  } else {
+    text += convertSection(decimalPart) + "สตางค์";
+  }
+  return text;
+}
+
+
+/* ==========================================================
+   INSTALLMENT PAYMENT SYSTEM (3 - 5 INSTALLMENTS)
+========================================================== */
+let installmentConfig = {
+  enabled: false,
+  installments: [
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU กัมพูชา", workers: 2, pricePerWorker: 10000, step: "ขั้นตอนการเก็บเอกสาร" },
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU กัมพูชา", workers: 2, pricePerWorker: 10000, step: "ขั้นตอนเนมลิสต์ออกจากประเทศต้นทางและกระทรวงแรงงาน และตีปิดวีซ่าเดิม" },
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU กัมพูชา", workers: 2, pricePerWorker: 6500, step: "ขั้นตอนขอรับวีซ่าออกจากกรมแรงงาน" }
+  ]
+};
+
+function toggleInstallmentSystem(enable) {
+  installmentConfig.enabled = enable;
+  const panel = document.getElementById('installment-editor-panel');
+  const badge = document.getElementById('installment-badge');
+  if (enable) {
+    panel.style.display = 'block';
+    badge.style.display = 'inline-block';
+    renderInstallmentRows();
+  } else {
+    panel.style.display = 'none';
+    badge.style.display = 'none';
+  }
+  updateLivePreview();
+}
+
+function resetDefaultInstallments() {
+  installmentConfig.installments = [
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU", workers: 2, pricePerWorker: 10000, step: "ขั้นตอนการเก็บเอกสาร" },
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU", workers: 2, pricePerWorker: 10000, step: "ขั้นตอนเนมลิสต์ออกจากประเทศต้นทางและกระทรวงแรงงาน และตีปิดวีซ่าเดิม" },
+    { workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU", workers: 2, pricePerWorker: 6500, step: "ขั้นตอนขอรับวีซ่าออกจากกรมแรงงาน" }
+  ];
+  renderInstallmentRows();
+  updateLivePreview();
+}
+
+function addInstallmentRow() {
+  if (installmentConfig.installments.length >= 5) {
+    alert("ระบบผ่อนชำระกำหนดให้มีได้สูงสุด 5 งวดครับ");
+    return;
+  }
+  const nextNum = installmentConfig.installments.length + 1;
+  installmentConfig.installments.push({
+    workType: "ประสานงานขึ้นทะเบียนใหม่ด้วยระบบ MOU",
+    workers: 2,
+    pricePerWorker: 5000,
+    step: `ขั้นตอนการดำเนินงานที่ ${nextNum}`
+  });
+  renderInstallmentRows();
+  updateLivePreview();
+}
+
+function removeInstallmentRow(idx) {
+  if (installmentConfig.installments.length <= 2) {
+    alert("ระบบผ่อนชำระต้องมีอย่างน้อย 2 งวดครับ");
+    return;
+  }
+  installmentConfig.installments.splice(idx, 1);
+  renderInstallmentRows();
+  updateLivePreview();
+}
+
+function updateInstallmentField(idx, field, val) {
+  installmentConfig.installments[idx][field] = (field === 'workers' || field === 'pricePerWorker') ? (parseFloat(val) || 0) : val;
+  refreshInstallmentCalculations();
+  updateLivePreview();
+}
+
+function refreshInstallmentCalculations() {
+  const totalInstallments = installmentConfig.installments.length;
+  const grandTotal = activeLineItems.reduce((acc, it) => acc + ((it.unit || 0) * (it.price || 0)), 0);
+
+  let sumPrevious = 0;
+  for (let i = 0; i < totalInstallments - 1; i++) {
+    const it = installmentConfig.installments[i];
+    const rowAmt = (it.workers || 0) * (it.pricePerWorker || 0);
+    sumPrevious += rowAmt;
+    const sumEl = document.getElementById(`inst-sum-text-${i}`);
+    if (sumEl) sumEl.innerText = `รวมงวดที่ ${i + 1}: ${rowAmt.toLocaleString()} บาท`;
+  }
+
+  const remainingFinal = Math.max(0, grandTotal - sumPrevious);
+  const lastSumEl = document.getElementById(`inst-sum-text-${totalInstallments - 1}`);
+  if (lastSumEl) {
+    lastSumEl.innerText = `รวมงวดสุดท้าย (คำนวณยอดคงค้างอัตโนมัติ): ${remainingFinal.toLocaleString()} บาท`;
+  }
+}
+
+function renderInstallmentRows() {
+  const container = document.getElementById('installment-rows-container');
+  if (!container) return;
+  container.innerHTML = '';
+  const totalInstallments = installmentConfig.installments.length;
+  document.getElementById('installment-badge').innerText = `${totalInstallments} งวด (สูงสุด 5)`;
+
+  const grandTotal = activeLineItems.reduce((acc, it) => acc + ((it.unit || 0) * (it.price || 0)), 0);
+
+  let sumPrevious = 0;
+  for (let i = 0; i < totalInstallments - 1; i++) {
+    const it = installmentConfig.installments[i];
+    sumPrevious += (it.workers || 0) * (it.pricePerWorker || 0);
+  }
+  const remainingFinal = Math.max(0, grandTotal - sumPrevious);
+
+  installmentConfig.installments.forEach((inst, index) => {
+    const isLast = (index === totalInstallments - 1);
+    const box = document.createElement('div');
+    box.style = `background:#fff; border:1px solid ${isLast ? '#f59e0b' : '#cbd5e1'}; border-radius:8px; padding:12px; margin-bottom:10px; box-sizing:border-box; width:100%;`;
+
+    if (!isLast) {
+      const rowAmt = (inst.workers || 0) * (inst.pricePerWorker || 0);
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="color:var(--primary); font-size:13px;">ท่อนที่ ${index + 1} (งวดที่ ${index + 1})</strong>
+          ${totalInstallments > 2 ? `<button type="button" class="btn btn-sm btn-danger" style="padding:2px 8px; font-size:11px;" onclick="removeInstallmentRow(${index})">ลบงวดนี้</button>` : ''}
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          <div style="flex:2; min-width:140px;">
+            <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">ชื่อประเภทงาน:</label>
+            <input type="text" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.workType}" oninput="updateInstallmentField(${index}, 'workType', this.value)">
+          </div>
+          <div style="flex:1; min-width:70px;">
+            <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">จำนวนแรงงาน:</label>
+            <input type="number" min="1" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.workers}" oninput="updateInstallmentField(${index}, 'workers', this.value)">
+          </div>
+          <div style="flex:1; min-width:90px;">
+            <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">บาท/คน:</label>
+            <input type="number" min="0" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.pricePerWorker}" oninput="updateInstallmentField(${index}, 'pricePerWorker', this.value)">
+          </div>
+        </div>
+        <div style="margin-bottom:6px;">
+          <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">ขั้นตอนการดำเนินงาน:</label>
+          <input type="text" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.step}" oninput="updateInstallmentField(${index}, 'step', this.value)">
+        </div>
+        <div id="inst-sum-text-${index}" style="font-size:12px; color:#059669; font-weight:700; text-align:right;">
+          รวมงวดที่ ${index + 1}: ${rowAmt.toLocaleString()} บาท
+        </div>
+      `;
+    } else {
+      // Last installment: Auto balance
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="color:#b45309; font-size:13px;">ท่อนที่ ${index + 1} (งวดสุดท้าย - ยอดคงค้าง)</strong>
+          ${totalInstallments > 2 ? `<button type="button" class="btn btn-sm btn-danger" style="padding:2px 8px; font-size:11px;" onclick="removeInstallmentRow(${index})">ลบงวดนี้</button>` : ''}
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          <div style="flex:2; min-width:140px;">
+            <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">ชื่อประเภทงาน:</label>
+            <input type="text" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.workType}" oninput="updateInstallmentField(${index}, 'workType', this.value)">
+          </div>
+          <div style="flex:1; min-width:70px;">
+            <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">จำนวนแรงงาน (คน):</label>
+            <input type="number" min="1" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.workers}" oninput="updateInstallmentField(${index}, 'workers', this.value)">
+          </div>
+        </div>
+        <div style="margin-bottom:6px;">
+          <label style="font-size:11px; font-weight:600; color:#475569; display:block; margin-bottom:2px;">ขั้นตอนการดำเนินงานงวดสุดท้าย:</label>
+          <input type="text" style="width:100%; box-sizing:border-box; padding:6px 8px; font-size:12.5px;" value="${inst.step}" oninput="updateInstallmentField(${index}, 'step', this.value)">
+        </div>
+        <div id="inst-sum-text-${index}" style="font-size:12.5px; color:#b45309; font-weight:700; text-align:right; background:#fffbeb; padding:6px 10px; border-radius:6px; border:1px dashed #f59e0b;">
+          รวมงวดสุดท้าย (คำนวณยอดคงค้างอัตโนมัติ): ${remainingFinal.toLocaleString()} บาท
+        </div>
+      `;
+    }
+
+    container.appendChild(box);
+  });
+}
+
+function generateInstallmentNoteHtml() {
+  const totalInstallments = installmentConfig.installments.length;
+  const grandTotal = activeLineItems.reduce((acc, it) => acc + ((it.unit || 0) * (it.price || 0)), 0);
+
+  let sumPrevious = 0;
+  for (let i = 0; i < totalInstallments - 1; i++) {
+    const it = installmentConfig.installments[i];
+    sumPrevious += (it.workers || 0) * (it.pricePerWorker || 0);
+  }
+  const remainingFinal = Math.max(0, grandTotal - sumPrevious);
+
+  let blocks = [];
+  installmentConfig.installments.forEach((inst, idx) => {
+    const isLast = (idx === totalInstallments - 1);
+    if (!isLast) {
+      const amt = (inst.workers || 0) * (inst.pricePerWorker || 0);
+      blocks.push(
+        `<div>ท่อนที่ ${idx + 1} ${inst.workType} ${inst.workers} คน ชำระ ${inst.workers}x${(inst.pricePerWorker || 0).toLocaleString()} บาท ${inst.step}</div>` +
+        `<div style="font-weight:700; color:#0f172a;">รวมชำระ งวดที่ ${idx + 1} เป็นจำนวนเงิน ${amt.toLocaleString()} บาท</div>`
+      );
+    } else {
+      let workerTxt = inst.workers ? `${inst.workers} คน ` : '';
+      let calcFormula = (inst.workers && inst.workers > 0) ? `ชำระ ${inst.workers}x${Math.round(remainingFinal / inst.workers).toLocaleString()} บาท ` : '';
+      blocks.push(
+        `<div>ท่อนที่ ${idx + 1} ${inst.workType} ${workerTxt}${calcFormula}${inst.step}</div>` +
+        `<div style="font-weight:700; color:#0f172a;">รวมชำระ งวดที่ ${idx + 1} เป็นจำนวนเงิน ${remainingFinal.toLocaleString()} บาท</div>`
+      );
+    }
+  });
+
+  return blocks.join('<div style="height:6px;"></div>');
+}
+
+/* ==========================================================
+   SAVE & EDIT INVOICE
+========================================================== */
+function saveCurrentInvoiceToStorage() {
+  const docNo = document.getElementById('inv-doc-no').value.trim();
+  if (!docNo) return alert('กรุณากรอกเลขที่เอกสาร');
+  const empId = document.getElementById('inv-select-employer').value;
+  const employer = appData.employers.find(e => e.id == empId);
+
+  const total = activeLineItems.reduce((acc, it) => acc + (it.unit * it.price), 0);
+
+  const invoiceObj = {
+    id: docNo,
+    date: document.getElementById('inv-doc-date').value,
+    docType: document.getElementById('inv-doc-type').value,
+    employerId: empId ? parseInt(empId) : null,
+    employerName: employer ? employer.name : 'ไม่ระบุนายจ้าง',
+    status: document.getElementById('inv-doc-status').value,
+    total: total,
+    items: JSON.parse(JSON.stringify(activeLineItems)),
+    notes: document.getElementById('inv-notes').value,
+    installmentConfig: JSON.parse(JSON.stringify(installmentConfig))
+  };
+
+  const existIdx = appData.invoices.findIndex(i => i.id === docNo);
+  if (existIdx >= 0) {
+    appData.invoices[existIdx] = invoiceObj;
+  } else {
+    appData.invoices.unshift(invoiceObj);
+  }
+
+  persistData();
+  alert(`บันทึกเอกสาร ${docNo} สำเร็จเรียบร้อย!`);
+}
+
+function loadInvoiceForEdit(id) {
+  const inv = appData.invoices.find(i => i.id === id);
+  if (!inv) return;
+
+  setTab('invoice');
+  refreshInvoiceSelectors();
+
+  document.getElementById('inv-doc-no').value = inv.id;
+  document.getElementById('inv-doc-date').value = inv.date;
+  document.getElementById('inv-doc-type').value = inv.docType;
+  document.getElementById('inv-doc-status').value = inv.status;
+  document.getElementById('inv-select-employer').value = inv.employerId || '';
+  document.getElementById('inv-notes').value = inv.notes || '';
+
+  activeLineItems = JSON.parse(JSON.stringify(inv.items || []));
+  renderLineItemCards();
+
+  if (inv.installmentConfig) {
+    installmentConfig = JSON.parse(JSON.stringify(inv.installmentConfig));
+    const chk = document.getElementById('chk-installment-toggle');
+    if (chk) chk.checked = installmentConfig.enabled;
+    toggleInstallmentSystem(installmentConfig.enabled);
+  } else {
+    installmentConfig.enabled = false;
+    const chk = document.getElementById('chk-installment-toggle');
+    if (chk) chk.checked = false;
+    toggleInstallmentSystem(false);
+  }
+
+  updateLivePreview();
+}
+
+/* ==========================================================
+   TEMPLATE MANAGEMENT (Support up to 20+ templates)
+========================================================== */
+function renderTemplatesTable() {
+  const tbody = document.getElementById('tmpl-table-body');
+  tbody.innerHTML = '';
+
+  appData.templates.forEach(t => {
+    const previewItems = t.items.map(i => i.title).join(', ');
+    const totalEst = t.items.reduce((s, i) => s + (i.unit * i.price), 0);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${t.name}</strong></td>
+      <td><span class="status-badge" style="background:#f1f5f9; color:#1e3a8a;">${t.category}</span></td>
+      <td style="font-size:12px; color:#475569;">${previewItems}</td>
+      <td style="text-align:right; font-weight:700;">${totalEst.toLocaleString()}</td>
+      <td style="text-align:center;">
+        <button class="btn btn-sm btn-primary" onclick="useTemplateInInvoice(${t.id})">ใช้แบบนี้</button>
+        <button class="btn btn-sm btn-danger" style="margin-left:4px;" onclick="deleteTemplate(${t.id})">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function useTemplateInInvoice(tId) {
+  setTab('invoice');
+  refreshInvoiceSelectors();
+  document.getElementById('inv-select-template').value = tId;
+  applyTemplateToInvoice(tId);
+}
+
+function saveInvoiceAsTemplate() {
+  if (appData.templates.length >= 25) {
+    return alert('คลังเทมเพลตมีมากกว่า 20 รูปแบบแล้ว โปรดลบรายการที่ไม่ใช้ออกก่อน');
+  }
+  const name = prompt('ตั้งชื่อ Template สำหรับบันทึกเก็บไว้ใช้งาน:');
+  if (!name) return;
+  const category = prompt('หมวดหมู่ / สัญชาติ (เช่น กัมพูชา, ลาว, เมียนมา, บริการทั่วไป):', 'ทั่วไป') || 'ทั่วไป';
+
+  appData.templates.push({
+    id: Date.now(),
+    name: name,
+    category: category,
+    items: JSON.parse(JSON.stringify(activeLineItems)),
+    notes: document.getElementById('inv-notes').value
+  });
+
+  persistData();
+  alert(`บันทึก Template "${name}" เรียบร้อยแล้ว!`);
+}
+
+function deleteTemplate(id) {
+  if (confirm('ยืนยันลบ Template นี้?')) {
+    appData.templates = appData.templates.filter(t => t.id !== id);
+    persistData();
+    renderTemplatesTable();
+  }
+}
+
+function openCreateTemplateModal() {
+  setTab('invoice');
+  alert('คุณสามารถตั้งค่ารายการในหน้าออกบิลนี้ให้เรียบร้อย แล้วกดปุ่ม "⭐ เซฟเป็น Template" ด้านล่างได้ทันที');
+}
+
+/* ==========================================================
+   EMPLOYER & WORKER MANAGEMENT
+========================================================== */
+function renderEmployersTable() {
+  const tbody = document.getElementById('emp-table-body');
+  tbody.innerHTML = '';
+  appData.employers.forEach(e => {
+    const count = appData.workers.filter(w => w.empId == e.id).length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${e.name}</strong></td>
+      <td>${e.address || '-'}</td>
+      <td>${e.phone || '-'}</td>
+      <td style="text-align:center;"><span class="status-badge" style="background:#eff6ff; color:#1e40af;">${count} คน</span></td>
+      <td style="text-align:center;">
+        <button class="btn btn-sm btn-danger" onclick="deleteEmployer(${e.id})">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addEmployer() {
+  const name = document.getElementById('new-emp-name').value.trim();
+  if (!name) return alert('กรุณากรอกชื่อนายจ้างหรือบริษัท');
+  appData.employers.push({
+    id: Date.now(),
+    name: name,
+    address: document.getElementById('new-emp-addr').value.trim(),
+    phone: document.getElementById('new-emp-phone').value.trim()
+  });
+  persistData();
+  document.getElementById('new-emp-name').value = '';
+  document.getElementById('new-emp-addr').value = '';
+  document.getElementById('new-emp-phone').value = '';
+  renderEmployersTable();
+  refreshInvoiceSelectors();
+  alert('บันทึกนายจ้างเรียบร้อย');
+}
+
+function deleteEmployer(id) {
+  if (confirm('ยืนยันลบนายจ้างรายนี้?')) {
+    appData.employers = appData.employers.filter(e => e.id !== id);
+    persistData();
+    renderEmployersTable();
+  }
+}
+
+function renderWorkersTable() {
+  // Populate employer select in workers tab
+  const empSelect = document.getElementById('new-w-emp-id');
+  empSelect.innerHTML = '';
+  appData.employers.forEach(e => {
+    empSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+  });
+
+  const tbody = document.getElementById('worker-table-body');
+  tbody.innerHTML = '';
+  appData.workers.forEach(w => {
+    const emp = appData.employers.find(e => e.id == w.empId);
+    // Key Fallback Logic: Passport -> Alien ID
+    const autoDisplay = w.passport ? w.passport : (w.alienId ? `เลขต่างด้าว: ${w.alienId}` : '<span style="color:#ef4444;">ไม่มีระบุ</span>');
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${w.name}</strong></td>
+      <td>${emp ? emp.name : '-'}</td>
+      <td>${w.passport || '-'}</td>
+      <td>${w.alienId || '-'}</td>
+      <td><span class="status-badge" style="background:#f1f5f9; color:#1e3a8a; font-weight:700;">${autoDisplay}</span></td>
+      <td style="text-align:center;">
+        <button class="btn btn-sm btn-danger" onclick="deleteWorker(${w.id})">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addWorker() {
+  const name = document.getElementById('new-w-name').value.trim();
+  if (!name) return alert('กรุณากรอกชื่อลูกจ้าง');
+  appData.workers.push({
+    id: Date.now(),
+    empId: parseInt(document.getElementById('new-w-emp-id').value),
+    name: name,
+    passport: document.getElementById('new-w-passport').value.trim(),
+    alienId: document.getElementById('new-w-alien').value.trim()
+  });
+  persistData();
+  document.getElementById('new-w-name').value = '';
+  document.getElementById('new-w-passport').value = '';
+  document.getElementById('new-w-alien').value = '';
+  renderWorkersTable();
+  alert('บันทึกลูกจ้างสำเร็จ');
+}
+
+function deleteWorker(id) {
+  if (confirm('ยืนยันลบลูกจ้างคนนี้?')) {
+    appData.workers = appData.workers.filter(w => w.id !== id);
+    persistData();
+    renderWorkersTable();
+  }
+}
+
+/* ==========================================================
+   SETTINGS & BRANDING (Logo upload & LocalStorage)
+========================================================== */
+function populateSettingsForm() {
+  document.getElementById('cfg-comp-name').value = appData.settings.companyName;
+  document.getElementById('cfg-comp-addr').value = appData.settings.address;
+  document.getElementById('cfg-comp-contact').value = appData.settings.contact;
+  document.getElementById('cfg-signer-name').value = appData.settings.signerName;
+}
+
+function saveSettings() {
+  appData.settings.companyName = document.getElementById('cfg-comp-name').value;
+  appData.settings.address = document.getElementById('cfg-comp-addr').value;
+  appData.settings.contact = document.getElementById('cfg-comp-contact').value;
+  appData.settings.signerName = document.getElementById('cfg-signer-name').value;
+  persistData();
+  updateLivePreview();
+}
+
+function uploadLogo(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      appData.settings.logoBase64 = e.target.result;
+      persistData();
+      updateLivePreview();
+      alert('บันทึกรูปโลโก้เข้าสู่ระบบสำเร็จแล้ว!');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+/* ==========================================================
+   DATA BACKUP & RESTORE (JSON Export/Import)
+========================================================== */
+function exportDataBackup() {
+  const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+  const a = document.createElement('a');
+  a.href = jsonStr;
+  a.download = "TRP_Billing_Backup_" + new Date().toISOString().split('T')[0] + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function importDataBackup(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (imported.employers && imported.invoices) {
+          appData = imported;
+          persistData();
+          alert('กู้คืนฐานข้อมูลเรียบร้อยแล้ว!');
+          location.reload();
+        } else {
+          alert('ไฟล์ข้อมูลไม่ถูกต้อง');
+        }
+      } catch(err) {
+        alert('เกิดข้อผิดพลาดในการอ่านไฟล์');
+      }
+    };
+    reader.readAsText(input.files[0]);
+  }
+}
+
+/* ==========================================================
+   INITIALIZATION
+========================================================== */
+window.onload = function() {
+  loadAllData();
+  renderDashboardTable();
+  refreshInvoiceSelectors();
+  resetInvoiceForm();
+};
+</script>
+</body>
+</html>
